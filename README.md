@@ -46,17 +46,10 @@ I decided to aim at a deadline of 2 hours to complete a simple MVP implementatio
 
 ## Screenshots
 
-![Login](./screenshots/login.jpg)
+| Login | Search | Extract | Download | Analyse | Chart |
+| --- | --- | --- | --- | --- | --- |
+| ![Login](./screenshots/login.jpg) | ![Search](./screenshots/search.jpg) | ![Extract](./screenshots/extract.jpg) | ![Download](./screenshots/download.jpg) | ![Analyse](./screenshots/analyse.jpg) | ![Chart](./screenshots/chart.jpg) |
 
-![Search](./screenshots/search.jpg)
-
-![Extract](./screenshots/extract.jpg)
-
-![Download](./screenshots/download.jpg)
-
-![Analyse](./screenshots/analyse.jpg)
-
-![Chart](./screenshots/chart.jpg)
 
 ## OpenSubtitles API
 
