@@ -301,6 +301,90 @@ program.command('download')
         }
     });
 
+program.command('analyse')
+    .description('Analyse subtitles for a TV series')
+    .argument('<feature_id>', 'feature ID of the TV series')
+    .action(async (featureId, options) => {
+        try {
+            let folderName = 'results';
+            if (!fs.existsSync(folderName)) fs.mkdirSync(folderName);
 
+            folderName += '/subtitles_' + featureId;
+            if (!fs.existsSync(folderName)) {
+                console.log(chalk.red('\nPlease run `swf extract ' + featureId + '` first to cache the subtitles list.'));
+                return;
+            }
+
+            const subtitlesListFileName = folderName + '/subtitles_list.json';
+            const subtitlesList = Object.fromEntries(Object.entries({...JSON.parse(fs.readFileSync(subtitlesListFileName, 'utf8'))}).filter(([k, v]) => v != null));
+
+            let subtitlesCount = 0;
+            let words = {};
+
+            for (const seriesNumber in subtitlesList) {
+                for (const episodeNumber in subtitlesList[seriesNumber]) {
+                    const filename = folderName + '/' + seriesNumber + 'x' + episodeNumber + '.srt';
+                    if (!fs.existsSync(filename)) {
+                        console.log(chalk.red('Please run `swf download ' + featureId + '` first to download the subtitles.'));
+                        return;
+                    }
+
+                    const data = fs.readFileSync(filename, 'utf8');
+                    const lines = data.split("\n");
+
+                    lines.forEach(line => {
+                        if (line.trim().length === 0) return;
+                        if (line.indexOf('-->') > -1) return;
+                        if (!isNaN(line)) return;
+
+                        // Remove numeric string
+                        if (line.match(/^\d+$/)) return;
+
+                        // Remove any HTML tags
+                        line = line.replace(/(<([^>]+)>)/gi, "");
+
+                        // Between brackets
+                        line = line.replace(/\(.*?\)/g, '');
+
+                        // Remove any extra spaces
+                        line = line.replace(/\s+/g, ' ');
+
+                        const lineWords = line.split(/\s+/);
+
+                        lineWords.forEach((word) => {
+                            if (word.length == 0) return;
+                            if (word.length > 5) return;
+
+                            // Remove numeric string
+                            if (word.match(/^\d+$/)) return;
+
+                            // Convert to lowercase
+                            word = word.toLowerCase();
+                            
+                            // trim punctuation from start and end
+                            word = word.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '');
+                            
+                            if (words[word] == null) words[word] = 0;
+                            words[word]++;
+                        });
+                        
+                    })
+
+                    subtitlesCount++;
+                }
+            }
+
+            let wordsArray = Object.entries(words);
+            // wordsArray.sort((a, b) => b[1] - a[1]);
+
+            let wordsFileName = folderName + '/words.json';
+            fs.writeFileSync(wordsFileName, JSON.stringify(wordsArray));
+
+            console.log(chalk.green('\nAnalysed ' + subtitlesCount + ' subtitles.'));
+            console.log(chalk.green('\nWord frequencies saved to ' + wordsFileName));
+        } catch (error) {
+            console.log(chalk.red("\n" + error.message));
+        }
+    });
 
 program.parse();
