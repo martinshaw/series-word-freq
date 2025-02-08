@@ -57,3 +57,11 @@ If you need more help setting up series-word-freq with the OpenSubtitles API. Pl
 3. Create a new API Key (Consumer). If you are using this for development etc..., you should tick 'Under dev' as this gives you a generous limit of download requests.
 
 ![Create API Key](./screenshots/os_3.jpg)
+
+## Story behind this project
+
+I saw this [Reddit post](https://old.reddit.com/r/SeveranceAppleTVPlus/comments/1ijju2m/data_visualizing_who_talks_when_by_episode/) which I found intriguing. I wanted to see if I could create something similar but for any TV series.
+
+I decided to aim at a deadline of 2 hours to complete a simple MVP implementation of this project idea from start at 1:30am finishing at 3:30am. I managed to complete the project in 7 hours and 30 minutes finishing at 9:00am. I am very happy with the result and I hope you find it useful.
+
+> "Work expands so as to fill the time available for its completion" - [Parkinson's Law](https://en.wikipedia.org/wiki/Parkinson%27s_law)
