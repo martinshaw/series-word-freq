@@ -60,7 +60,12 @@ class AnalysisService {
     });
 
     let wordsArray = Object.entries(words);
-    wordsArray.sort((a, b) => b[1] - a[1]);
+
+    if (process.env.REMOVE_WORDS_UNDER_FREQUENCY) {
+        wordsArray = wordsArray.filter((word) => word[1] >= process.env.REMOVE_WORDS_UNDER_FREQUENCY);
+    }
+
+    wordsArray = wordsArray.sort((a, b) => b[1] - a[1]);
 
     return wordsArray;
   } 

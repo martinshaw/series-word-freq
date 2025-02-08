@@ -11,6 +11,7 @@ Description: description
 */
 const fs = require('fs');
 const chalk = require('chalk');
+const express = require('express');
 const Chart = require('chart.js/auto');
 const { Command } = require('commander');
 const { createCanvas } = require('canvas');
@@ -437,6 +438,7 @@ program.command('chart')
             const chartFileName = folderName + '/word_frequency_chart.json';
             const chartConfig = JSON.parse(fs.readFileSync(chartFileName, 'utf8'));
 
+            // TODO: Need to scale this based on the number of words. *15 is appropriate when there are ±7000 words included, but when we use REMOVE_WORDS_UNDER_FREQUENCY to reduce the low frequency words, we need to adjust this, because the generated chart looks ridiculous.
             const canvas = createCanvas(800 *15, 600 *15);
             const ctx = canvas.getContext('2d');
 
@@ -454,7 +456,80 @@ program.command('chart')
         }
     });
 
+program.command('interactive')
+    .description('Serve an interactive word frequencies chart for a TV series on a local web server')
+    .argument('<feature_id>', 'feature ID of the TV series')
+    .action(async (featureId, options) => {
+        try {
+            let folderName = 'results';
+            if (!fs.existsSync(folderName)) fs.mkdirSync(folderName);
 
+            folderName += '/subtitles_' + featureId;
+            if (!fs.existsSync(folderName)) {
+                console.log(chalk.red('\nPlease run `swf analyse ' + featureId + '` first to cache the word frequency chart.'));
+                return;
+            }
+
+            if (!fs.existsSync(folderName + '/word_frequency_chart.json')) {
+                console.log(chalk.red('\nPlease run `swf analyse ' + featureId + '` first to generate the word frequency chart.'));
+                return;
+            }
+
+            console.log('Starting web server...');
+
+            const app = express();
+
+            app.use(express.static(folderName));
+
+            app.get('/', (req, res) => {
+                res.sendFile(__dirname + '/index.html');
+            });
+
+            // app.get('/list', (req, res) => {
+            //     const list = {};
+                
+            //     let folderName = 'results';
+            //     if (!fs.existsSync(folderName)) fs.mkdirSync(folderName);
+
+            //     const files = fs.readdirSync(folderName).filter(file => fs.lstatSync(folderName + '/' + file).isDirectory() && file.indexOf('subtitles_') == 0);
+
+            //     files.forEach((file) => {
+            //         if (file.indexOf('subtitles_') == 0) {
+            //             const subtitlesListFileName = folderName + '/' + file + '/subtitles_list.json';
+            //             const subtitlesList = JSON.parse(fs.readFileSync(subtitlesListFileName, 'utf8'));
+
+            //             // Get title of parent series from first episode
+            //             const seasons = Object.values(subtitlesList).filter(v => v != null);
+            //             if (seasons.length == 0) return;
+            //             const episodes = Object.values(seasons[0]).filter(v => v != null);
+            //             if (episodes.length == 0) return;
+            //             const seriesTitle = episodes[0].attributes.feature_details.parent_title;
+
+            //             list[file.replace('subtitles_', '')] = seriesTitle;
+            //         }
+            //     });
+
+            //     res.json(list);
+            // });
+
+            app.get('/chart', (req, res) => {
+                const chartFileName = folderName + '/word_frequency_chart.json';
+                const chartConfig = JSON.parse(fs.readFileSync(chartFileName, 'utf8'));
+
+                res.json(chartConfig);
+            });
+
+            const portNumber = process.env.INTERACTIVE_PORT ?? 4000;
+
+            app.listen(portNumber, () => {
+                console.log('Server started on http://localhost:' + portNumber);
+            });
+
+        } catch (error) {
+            console.log(chalk.red("\n" + error.message));
+        }
+    }
+);
 
 
 program.parse();

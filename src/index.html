@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Series-word-freq Interactive Charts</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            /* background-color: red; */
+        }
+
+        canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            margin: 0 auto;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                text-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                text-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                text-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+            }
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 1s infinite;
+        }
+    </style>
+
+    <script>
+        document.onreadystatechange = () => {
+            if (document.readyState === 'complete') {
+                const ctx = document.getElementById('myChart');
+
+                const hostWithPort = window.location.origin;
+                const url = `${hostWithPort}/chart`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const config = {
+                            type: 'line',
+                            data,
+                            options: {
+                                //
+                            }
+                        };
+
+                        const myChart = new Chart(ctx, config);
+
+                        document.getElementById('loading').style.display = 'none';
+                    });
+            }
+        };
+
+    </script>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+
+    <div id="loading">
+        <h1>Loading...</h1>
+    </div>
+</body> 
+</html>
