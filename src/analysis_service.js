@@ -9,6 +9,7 @@ File Name:   analysis_service.js
 Description: description
 
 */
+const fs = require("fs");
 
 class AnalysisService {
   constructor() {
@@ -67,8 +68,9 @@ class AnalysisService {
       );
     }
 
-    if (process.env.EXCLUDE_WORDS) {
-      const excludeWords = process.env.EXCLUDE_WORDS.split(",");
+    if (process.env.EXCLUDE_WORDS_FROM) {
+      const excludeWordsFileName = process.env.EXCLUDE_WORDS_FROM;
+      const excludeWords = fs.readFileSync(excludeWordsFileName, "utf8").split("\n");
       wordsArray = wordsArray.filter((word) => !excludeWords.includes(word[0]));
     }
 
