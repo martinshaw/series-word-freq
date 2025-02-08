@@ -438,11 +438,15 @@ program.command('chart')
             const chartFileName = folderName + '/word_frequency_chart.json';
             const chartConfig = JSON.parse(fs.readFileSync(chartFileName, 'utf8'));
 
-            // TODO: Need to scale this based on the number of words. *15 is appropriate when there are ±7000 words included, but when we use REMOVE_WORDS_UNDER_FREQUENCY to reduce the low frequency words, we need to adjust this, because the generated chart looks ridiculous.
-            const canvas = createCanvas(800 *15, 600 *15);
+            // TODO: Needs more testing. Standard 800x600 seems to fit about 80 words
+            const sizeRatio = chartConfig.datasets.length / 80;
+            const width = sizeRatio < 1 ? 800 : 800 * sizeRatio;
+            const height = sizeRatio < 1 ? 600 : 600 * sizeRatio;
+
+            const canvas = createCanvas(width, height);
             const ctx = canvas.getContext('2d');
 
-            const chart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'line',
                 data: chartConfig,
             });
