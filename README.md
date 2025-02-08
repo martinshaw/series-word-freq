@@ -48,12 +48,12 @@ If you need more help setting up series-word-freq with the OpenSubtitles API. Pl
 
 1. Create an account at https://www.opensubtitles.org/
 
-![Register](./screenshots/os-1.jpg)
+![Register](./screenshots/os_1.jpg)
 
 2. Login to your account and go to the 'API Consumers' page.
 
-![API Consumers](./screenshots/os-2.jpg)
+![API Consumers](./screenshots/os_2.jpg)
 
 3. Create a new API Key (Consumer). If you are using this for development etc..., you should tick 'Under dev' as this gives you a generous limit of download requests.
 
-![Create API Key](./screenshots/os-3.jpg)
+![Create API Key](./screenshots/os_3.jpg)
