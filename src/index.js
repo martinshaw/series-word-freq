@@ -3,7 +3,7 @@ All Rights Reserved, (c) 2025 series-word-freq
 
 Author:      Martin Shaw (developer@martinshaw.co)
 Created:     2025-02-08T01:49:58.341Z
-Modified:     2025-02-08T01:49:58.341Z
+Modified:     2025-02-08T09:19:53.216Z
 File Name:   index.js
 
 Description: description
@@ -24,7 +24,7 @@ const program = new Command();
 
 program
   .name('series-word-freq')
-  .description('// TODO: Add later')
+  .description('Magically create interactive graphs of word frequency in a TV series')
   .version(version);
 
 program.command('login')    
@@ -534,6 +534,5 @@ program.command('interactive')
         }
     }
 );
-
 
 program.parse();

@@ -3,18 +3,18 @@ All Rights Reserved, (c) 2025 series-word-freq
 
 Author:      Martin Shaw (developer@martinshaw.co)
 Created:     2025-02-08T01:57:00.521Z
-Modified:     2025-02-08T01:57:00.521Z
+Modified:     2025-02-08T09:20:32.134Z
 File Name:   open_subtitles_api_client.js
 
 Description: description
 
 */
-const OS = require('opensubtitles.com');
 const fs = require('fs');
 require('dotenv').config();
-const { version } = require('../package.json');
-const { get } = require('https');
 const chalk = require('chalk');
+const { get } = require('https');
+const OS = require('opensubtitles.com');
+const { version } = require('../package.json');
 
 class OpenSubtitlesService {
     constructor () {
