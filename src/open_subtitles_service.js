@@ -92,7 +92,7 @@ class OpenSubtitlesService {
         }
 
         if (response.remaining <= 0) {
-            console.log(chalk.orange('      You have reached your download limit with OpenSubtitles. Your quote will reset in ' + response.reset_time + '. Please run this command again then to resume downloading.'));
+            console.log(chalk.yellow('      You have reached your download limit with OpenSubtitles. Your quote will reset in ' + response.reset_time + '. Please run this command again then to resume downloading.'));
         }
 
         const downloadUrl = response?.link;
