@@ -46,6 +46,8 @@ I decided to aim at a deadline of 2 hours to complete a simple MVP implementatio
 
 ## Screenshots
 
+![Login](./screenshots/login.jpg)
+
 ![Search](./screenshots/search.jpg)
 
 ![Extract](./screenshots/extract.jpg)
