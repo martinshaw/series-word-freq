@@ -9,13 +9,17 @@ File Name:   index.js
 Description: description
 
 */
-const { Command } = require('commander');
-const program = new Command();
-const OpenSubtitlesService = require('./open_subtitles_service');
-const { version } = require('../package.json');
-const chalk = require('chalk');
-const readlineSync = require('readline-sync');
 const fs = require('fs');
+const chalk = require('chalk');
+const Chart = require('chart.js/auto');
+const { Command } = require('commander');
+const { createCanvas } = require('canvas');
+const readlineSync = require('readline-sync');
+const { version } = require('../package.json');
+const AnalysisService = require('./analysis_service');
+const OpenSubtitlesService = require('./open_subtitles_service');
+
+const program = new Command();
 
 program
   .name('series-word-freq')
@@ -77,6 +81,40 @@ program.command('login')
             console.log("  VIP: ", response.user.vip ? 'Yes' : 'No');
 
             console.log(chalk.green('\nLogin successful!'));
+        } catch (error) {
+            console.log(chalk.red("\n" + error.message));
+        }
+    });
+
+program.command('list')
+    .alias('ls')
+    .description('List all TV series extracted locally')
+    .action(async () => {
+        try {
+            let folderName = 'results';
+            if (!fs.existsSync(folderName)) fs.mkdirSync(folderName);
+
+            const files = fs.readdirSync(folderName).filter(file => fs.lstatSync(folderName + '/' + file).isDirectory() && file.indexOf('subtitles_') == 0);
+
+            console.log(chalk.green('\nFound ' + files.length + ' series:'));
+
+            files.forEach((file) => {
+                if (file.indexOf('subtitles_') == 0) {
+                    console.log('\n  ' + file.replace('subtitles_', ''));
+
+                    const subtitlesListFileName = folderName + '/' + file + '/subtitles_list.json';
+                    const subtitlesList = JSON.parse(fs.readFileSync(subtitlesListFileName, 'utf8'));
+
+                    // Get title of parent series from first episode
+                    const seasons = Object.values(subtitlesList).filter(v => v != null);
+                    if (seasons.length == 0) return;
+                    const episodes = Object.values(seasons[0]).filter(v => v != null);
+                    if (episodes.length == 0) return;
+                    const seriesTitle = episodes[0].attributes.feature_details.parent_title;
+
+                    console.log('    ' + seriesTitle);
+                }
+            });
         } catch (error) {
             console.log(chalk.red("\n" + error.message));
         }
@@ -306,6 +344,8 @@ program.command('analyse')
     .argument('<feature_id>', 'feature ID of the TV series')
     .action(async (featureId, options) => {
         try {
+            const analysisService = new AnalysisService();
+
             let folderName = 'results';
             if (!fs.existsSync(folderName)) fs.mkdirSync(folderName);
 
@@ -318,73 +358,103 @@ program.command('analyse')
             const subtitlesListFileName = folderName + '/subtitles_list.json';
             const subtitlesList = Object.fromEntries(Object.entries({...JSON.parse(fs.readFileSync(subtitlesListFileName, 'utf8'))}).filter(([k, v]) => v != null));
 
-            let subtitlesCount = 0;
-            let words = {};
+            const chartConfig = {
+                datasets: [],
+                labels: [],
+            }
+            const chartWordFrequencySet = [];
+            const chartWordWordSet = [];
 
             for (const seriesNumber in subtitlesList) {
+
+                console.log('Series ' + seriesNumber + ':');
+
                 for (const episodeNumber in subtitlesList[seriesNumber]) {
+
+                    console.log('  Episode ' + episodeNumber + ':');
+
                     const filename = folderName + '/' + seriesNumber + 'x' + episodeNumber + '.srt';
                     if (!fs.existsSync(filename)) {
-                        console.log(chalk.red('Please run `swf download ' + featureId + '` first to download the subtitles.'));
+                        console.log(chalk.red('\nPlease run `swf download ' + featureId + '` first to download the subtitles.'));
                         return;
                     }
 
-                    const data = fs.readFileSync(filename, 'utf8');
-                    const lines = data.split("\n");
+                    chartConfig.labels.push(seriesNumber + 'x' + episodeNumber);
 
-                    lines.forEach(line => {
-                        if (line.trim().length === 0) return;
-                        if (line.indexOf('-->') > -1) return;
-                        if (!isNaN(line)) return;
+                    const text = fs.readFileSync(filename, 'utf8');
 
-                        // Remove numeric string
-                        if (line.match(/^\d+$/)) return;
+                    const wordsArray = analysisService.analyseWordFrequency([text]);
 
-                        // Remove any HTML tags
-                        line = line.replace(/(<([^>]+)>)/gi, "");
+                    let wordsFileName = folderName + '/' + seriesNumber + 'x' + episodeNumber + '.words.json';
+                    fs.writeFileSync(wordsFileName, JSON.stringify(wordsArray));
 
-                        // Between brackets
-                        line = line.replace(/\(.*?\)/g, '');
+                    chartWordFrequencySet.push(Object.fromEntries(wordsArray));
+                    chartWordWordSet.push(wordsArray.map(([word, frequency]) => word).filter(word => word.length > 0));
 
-                        // Remove any extra spaces
-                        line = line.replace(/\s+/g, ' ');
-
-                        const lineWords = line.split(/\s+/);
-
-                        lineWords.forEach((word) => {
-                            if (word.length == 0) return;
-                            if (word.length > 5) return;
-
-                            // Remove numeric string
-                            if (word.match(/^\d+$/)) return;
-
-                            // Convert to lowercase
-                            word = word.toLowerCase();
-                            
-                            // trim punctuation from start and end
-                            word = word.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '');
-                            
-                            if (words[word] == null) words[word] = 0;
-                            words[word]++;
-                        });
-                        
-                    })
-
-                    subtitlesCount++;
+                    console.log(chalk.green('    Word frequencies saved to ' + wordsFileName));
                 }
             }
 
-            let wordsArray = Object.entries(words);
-            // wordsArray.sort((a, b) => b[1] - a[1]);
+            const allWordsFromAllEpisodes = [...new Set(chartWordWordSet.flat())];
 
-            let wordsFileName = folderName + '/words.json';
-            fs.writeFileSync(wordsFileName, JSON.stringify(wordsArray));
+            const allWordsFromAllEpisodesFrequency = allWordsFromAllEpisodes.map(word => {
+                return {
+                    type: 'line',
+                    label: word,
+                    data: chartConfig.labels.map((label, index) => {
+                        return chartWordFrequencySet[index][word] || 0;
+                    }),
+                }
+            });
+            
+            chartConfig.datasets = allWordsFromAllEpisodesFrequency;
 
-            console.log(chalk.green('\nAnalysed ' + subtitlesCount + ' subtitles.'));
-            console.log(chalk.green('\nWord frequencies saved to ' + wordsFileName));
+            let chartFileName = folderName + '/word_frequency_chart.json';
+            fs.writeFileSync(chartFileName, JSON.stringify(chartConfig));
+
+            console.log(chalk.green('\nWord frequency chart saved to ' + chartFileName));
         } catch (error) {
             console.log(chalk.red("\n" + error.message));
         }
     });
+
+program.command('chart')
+    .description('Generate a large chart image of word frequencies for a TV series')
+    .argument('<feature_id>', 'feature ID of the TV series')
+    .action(async (featureId, options) => {
+        try {
+            let folderName = 'results';
+            if (!fs.existsSync(folderName)) fs.mkdirSync(folderName);
+
+            folderName += '/subtitles_' + featureId;
+            if (!fs.existsSync(folderName)) {
+                console.log(chalk.red('\nPlease run `swf analyse ' + featureId + '` first to cache the word frequency chart.'));
+                return;
+            }
+
+            console.log('Generating chart... This may take a while, please be patient.');
+
+            const chartFileName = folderName + '/word_frequency_chart.json';
+            const chartConfig = JSON.parse(fs.readFileSync(chartFileName, 'utf8'));
+
+            const canvas = createCanvas(800 *15, 600 *15);
+            const ctx = canvas.getContext('2d');
+
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: chartConfig,
+            });
+
+            const chartImageFileName = folderName + '/word_frequency_chart.png';
+            fs.writeFileSync(chartImageFileName, canvas.toBuffer('image/png'));
+
+            console.log(chalk.green('\nWord frequency chart saved to ' + chartImageFileName));
+        } catch (error) {
+            console.log(chalk.red("\n" + error.message));
+        }
+    });
+
+
+
 
 program.parse();
