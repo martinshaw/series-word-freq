@@ -26,7 +26,7 @@ I decided to aim at a deadline of 2 hours to complete a simple MVP implementatio
 
 3. Install the dependencies by running `npm install` in the project directory.
 
-4. Run `npm run swf login` to login to the OpenSubtitles API. You will need to create an account at https://www.opensubtitles.org/ and get a username, password and an API key. You will be prompted to enter these details or you can add them manually to a `.env` file.
+4. Run `npm run swf login` to login to the OpenSubtitles API. You will need to create an account at https://www.opensubtitles.org/ and get a username, password and an API key. You will be prompted to enter these details or you can add them manually to a `.env` file. Choose a password that doesn't contain double quotes.
 
 4. Run `npm run swf search "series"` to search for a series. Replace `"series"` with the name of the series you want to search for.
 
