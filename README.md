@@ -38,11 +38,11 @@ I decided to aim at a deadline of 2 hours to complete a simple MVP implementatio
 
 8. Run the mentioned command `npm run swf analyse 12345` to analyse the subtitles for the show.
 
-9. Run the mentioned command `npm run swf chart 12345` to generate a .png image of the word frequency graph for the show.
+9. Run the command `npm run swf chart 12345` to generate a .png image of the word frequency graph for the show.
 
-10. Run the mentioned command `npm run swf interactive 12345` to serve an interactive word frequency graph for the show on a local server at http://localhost:5000.
+10. Run the command `npm run swf interactive 12345` to serve an interactive word frequency graph for the show on a local server at http://localhost:5000.
 
-11. Run the mentioned command `npm run swf ls` or `npm run swf list` to list the shows you have analysed.
+11. Run the command `npm run swf ls` or `npm run swf list` to list the shows you have analysed.
 
 ## Screenshots
 
