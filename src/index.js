@@ -128,11 +128,7 @@ program.command('search')
         try {
             let requestedLanguages = null;
             if (process.env.OPENSUBTITLES_LANGUAGES) {
-                try {
-                    requestedLanguages = JSON.parse(process.env.OPENSUBTITLES_LANGUAGES);
-                } catch (e) {
-                    //
-                }
+                requestedLanguages = process.env.OPENSUBTITLES_LANGUAGES.split(',');
             }
 
             const service = new OpenSubtitlesService();

@@ -60,11 +60,7 @@ class OpenSubtitlesService {
         }
 
         if (process.env.OPENSUBTITLES_LANGUAGES) {
-            try {
-                requestOptions.languages = JSON.parse(process.env.OPENSUBTITLES_LANGUAGES);
-            } catch (e) {
-                console.error('Error parsing OPENSUBTITLES_LANGUAGES. Please check the format of the variable in your .env file.');
-            }
+            requestOptions.languages = process.env.OPENSUBTITLES_LANGUAGES.split(',');
         }
 
         return await (await this.client).subtitles(requestOptions);
