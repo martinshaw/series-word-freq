@@ -1,14 +1,15 @@
 {
   "name": "series-word-freq",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "swf": "node src/index.js"
   },
   "author": "Martin Shaw <developer@martinshaw.co>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/martinshaw/series-word-freq.git"
+    "url": "https://github.com/martinshaw/series-word-freq.git"
   },
+  "homepage": "https://github.com/martinshaw/series-word-freq",
   "license": "ISC",
   "description": "",
   "dependencies": {
