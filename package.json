@@ -4,7 +4,11 @@
   "scripts": {
     "swf": "node src/index.js"
   },
-  "author": "",
+  "author": "Martin Shaw <developer@martinshaw.co>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martinshaw/series-word-freq.git"
+  },
   "license": "ISC",
   "description": "",
   "dependencies": {
