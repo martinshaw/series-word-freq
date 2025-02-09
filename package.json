@@ -1,6 +1,6 @@
 {
   "name": "series-word-freq",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "swf": "node src/index.js"
   },
